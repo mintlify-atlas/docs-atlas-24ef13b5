@@ -1,0 +1,65 @@
+{
+  "projectType": "frontend",
+  "projectName": "Angular Bases",
+  "projectDescription": "A learning project demonstrating Angular fundamentals including signals, routing, and component architecture.",
+  "theme": "palm",
+  "primaryColor": "#22f48d",
+  "lightColor": "#55fb8b",
+  "darkColor": "#c9fcd1",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "quickstart",
+          "installation"
+        ]
+      },
+      {
+        "group": "Core Concepts",
+        "pages": [
+          "concepts/signals",
+          "concepts/routing",
+          "concepts/components",
+          "concepts/change-detection"
+        ]
+      },
+      {
+        "group": "Components",
+        "pages": [
+          "components/overview",
+          "components/counter-page",
+          "components/hero-page",
+          "components/dragonball-pages",
+          "components/navbar"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "guides/project-structure",
+          "guides/development",
+          "guides/building",
+          "guides/testing"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Signal-based state management",
+    "Angular Router with multiple pages",
+    "OnPush change detection strategy",
+    "Reusable shared components",
+    "Vitest integration for testing"
+  ],
+  "publicApiSurface": [
+    "App (root component)",
+    "CounterPage (signal state demo)",
+    "HeroPageComponent (hero form demo)",
+    "DragonballPage (content page)",
+    "DragonballSuperPage (content page)",
+    "Navbar (shared navigation component)",
+    "routes (application routing configuration)"
+  ]
+}
