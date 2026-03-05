@@ -1,0 +1,74 @@
+---
+title: Components Overview
+description: Overview of all components in the Angular Bases project
+---
+
+This Angular application is organized into **pages** and **shared components**, demonstrating modern Angular patterns with signals and standalone components.
+
+## Project Structure
+
+The application follows a clear separation between page components and reusable shared components:
+
+```
+src/app/
+├── pages/                    # Page-level components (routes)
+│   ├── counter/             # Counter demonstration
+│   ├── hero/                # Hero form example
+│   ├── dragonball/          # Character list with signals
+│   └── dragonball-super/    # Enhanced character list
+└── components/
+    └── shared/              # Reusable components
+        └── navbar/          # Navigation component
+```
+
+## Pages vs Shared Components
+
+### Pages
+Page components are route-level components that represent different views in the application. Each page is mapped to a specific route in `app.routes.ts` and serves as a container for feature-specific functionality.
+
+### Shared Components
+Shared components are reusable across multiple pages. In this project, the Navbar is a shared component used in the main App layout.
+
+## Available Components
+
+<CardGroup cols={2}>
+  <Card title="Counter Page" icon="hashtag" href="/components/counter-page">
+    Demonstrates signal usage, OnPush change detection, and basic state management
+  </Card>
+  
+  <Card title="Hero Page" icon="user-shield" href="/components/hero-page">
+    Shows reactive form handling with signals and dynamic data updates
+  </Card>
+  
+  <Card title="Dragonball Pages" icon="dragon" href="/components/dragonball-pages">
+    Character list management with signal arrays and conditional rendering
+  </Card>
+  
+  <Card title="Navbar" icon="bars" href="/components/navbar">
+    Navigation component with RouterLink and active route highlighting
+  </Card>
+</CardGroup>
+
+## Key Angular Patterns
+
+This project demonstrates several modern Angular patterns:
+
+- **Signals**: All components use Angular signals for reactive state management
+- **Standalone Components**: No NgModules required
+- **OnPush Change Detection**: Optimized performance with `ChangeDetectionStrategy.OnPush`
+- **Template Syntax**: New `@if` and `@for` control flow syntax
+- **Router Integration**: RouterLink and RouterLinkActive directives
+
+<Note>
+  All components in this project use the new Angular standalone component architecture, eliminating the need for NgModules.
+</Note>
+
+## Component Architecture
+
+Each page component follows a consistent structure:
+
+1. **TypeScript file** (`.ts`) - Component logic with signals and methods
+2. **HTML template** (`.html`) - Separated template file for better organization
+3. **Inline styles** (optional) - Component-specific styles when needed
+
+This separation of concerns makes the codebase more maintainable and easier to understand.

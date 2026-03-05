@@ -1,80 +1,187 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quick Start
+description: Get Angular Bases running in 5 minutes
 ---
 
-## Get started in three steps
+## Get Started in 5 Minutes
 
-Get your documentation site running locally and make your first customization.
+Follow these steps to get Angular Bases up and running on your local machine.
 
-### Step 1: Set up your local environment
+<Steps>
+  <Step title="Clone the Repository">
+    First, clone the Angular Bases repository to your local machine:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+    ```bash
+    git clone https://github.com/your-username/bases.git
+    cd bases
+    ```
+
+    <Note>
+      Replace `your-username` with the actual repository owner's username.
+    </Note>
+  </Step>
+
+  <Step title="Install Dependencies">
+    Install all required dependencies using your preferred package manager:
+
+    <CodeGroup>
+      ```bash npm
+      npm install
+      ```
+
+      ```bash yarn
+      yarn install
+      ```
+
+      ```bash pnpm
+      pnpm install
+      ```
+    </CodeGroup>
+
+    This will install:
+    - Angular 21.1.0 framework packages
+    - Angular CLI 21.1.4 build tools
+    - TypeScript 5.9.2 compiler
+    - Vitest 4.0.8 testing framework
+    - All other project dependencies
+
+    <Tip>
+      The project is configured to use npm 11.10.0 as the default package manager.
+    </Tip>
+  </Step>
+
+  <Step title="Start the Development Server">
+    Launch the development server with hot module reloading:
+
+    <CodeGroup>
+      ```bash npm
+      npm start
+      ```
+
+      ```bash ng
+      ng serve
+      ```
+
+      ```bash yarn
+      yarn start
+      ```
+    </CodeGroup>
+
+    The development server will start and you'll see output similar to:
+
+    ```bash
+    ** Angular Live Development Server is listening on localhost:4200 **
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    ✔ Browser application bundle generation complete.
+    Initial chunk files | Names         | Raw size
+    main.js             | main          | XX.XX kB
+    polyfills.js        | polyfills     | XX.XX kB
+    styles.css          | styles        | X.XX kB
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    Application bundle generation complete. [X.XXX seconds]
+    Watch mode enabled. Watching for file changes...
+    ```
 
-### Step 2: Deploy your changes
+    <Note>
+      The server runs on `http://localhost:4200/` by default and will automatically reload when you make changes to the source files.
+    </Note>
+  </Step>
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+  <Step title="Explore the Application">
+    Open your browser and navigate to `http://localhost:4200/`. You'll see the Angular Bases application with a navigation bar.
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    ### Available Pages
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    <CardGroup cols={3}>
+      <Card title="Counter" icon="calculator">
+        **Route**: `/`
+        
+        Demonstrates signal-based state management with increment and decrement operations. Features OnPush change detection strategy.
+      </Card>
 
-### Step 3: Go live
+      <Card title="Hero" icon="mask">
+        **Route**: `/hero`
+        
+        Shows reactive form handling with signals. Manage hero properties like name and age with computed values.
+      </Card>
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+      <Card title="Dragonball" icon="dragon">
+        **Route**: `/dragonball`
+        
+        Builds dynamic character lists with signal updates. Add characters with validation and see signal array transformations.
+      </Card>
+    </CardGroup>
 
-## Next steps
+    ### Try These Features
 
-Now that you have your docs running, explore these key features:
+    **Counter Page** (Default landing page):
+    - Click increment/decrement buttons to see signals in action
+    - Notice how both regular and signal-based counters update
+    - Observe the OnPush change detection behavior
+
+    **Hero Page**:
+    - View the default hero (Ironman, age 45)
+    - Change the hero to see signal updates
+    - Reset the form to initial values
+
+    **Dragonball Page**:
+    - Add new characters with name and power level
+    - See the character list update reactively
+    - Try validation by submitting empty or invalid values
+  </Step>
+</Steps>
+
+## What's Next?
 
 <CardGroup cols={2}>
+  <Card title="Project Structure" icon="folder-tree" href="/guides/project-structure">
+    Learn about the codebase organization
+  </Card>
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+  <Card title="Core Concepts" icon="lightbulb" href="/concepts/signals">
+    Deep dive into signals and Angular patterns
+  </Card>
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+  <Card title="Build for Production" icon="hammer" href="/guides/building">
+    Learn how to build and deploy your app
+  </Card>
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Run Tests" icon="vial" href="/guides/testing">
+    Execute unit tests with Vitest
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+## Common Commands
+
+Here are the most commonly used commands for development:
+
+<CodeGroup>
+  ```bash Start Dev Server
+  npm start
+  ```
+
+  ```bash Build for Production
+  npm run build
+  ```
+
+  ```bash Run Tests
+  npm test
+  ```
+
+  ```bash Build with Watch Mode
+  npm run watch
+  ```
+</CodeGroup>
+
+<Tip>
+  Use `npm run watch` during development to automatically rebuild when files change without running the dev server.
+</Tip>
+
+## Troubleshooting
+
+If you encounter issues:
+
+1. **Port 4200 already in use**: Stop other Angular applications or specify a different port with `ng serve --port 4201`
+2. **Module not found errors**: Delete `node_modules` and `package-lock.json`, then run `npm install` again
+3. **TypeScript errors**: Ensure you're using TypeScript 5.9.2 or compatible version
+4. **Build errors**: Clear the Angular cache with `rm -rf .angular/cache`

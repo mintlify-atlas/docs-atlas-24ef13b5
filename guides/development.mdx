@@ -1,0 +1,216 @@
+---
+title: Development
+description: Running and developing Angular Bases locally
+---
+
+## Development Server
+
+Angular Bases uses the Angular CLI development server with hot module replacement for a fast development experience.
+
+## Quick Start
+
+<Steps>
+  <Step title="Install Dependencies">
+    First, install all required packages:
+    
+    ```bash
+    npm install
+    ```
+  </Step>
+
+  <Step title="Start Development Server">
+    Run the development server:
+    
+    ```bash
+    npm start
+    ```
+    
+    Or use the Angular CLI directly:
+    
+    ```bash
+    ng serve
+    ```
+  </Step>
+
+  <Step title="Open in Browser">
+    Navigate to `http://localhost:4200/` in your browser. The application will automatically reload when you make changes to source files.
+  </Step>
+</Steps>
+
+## Available npm Scripts
+
+From `package.json`, the following scripts are available:
+
+### Development Scripts
+
+<CodeGroup>
+```bash npm start
+npm start
+```
+
+```bash ng serve
+ng serve
+```
+</CodeGroup>
+
+Both commands start the development server on port 4200.
+
+### Watch Mode
+
+```bash
+npm run watch
+```
+
+Builds the application in watch mode with the development configuration. This continuously rebuilds the project as you make changes.
+
+Equivalent to:
+```bash
+ng build --watch --configuration development
+```
+
+### Angular CLI
+
+```bash
+npm run ng -- <command>
+```
+
+Run any Angular CLI command. For example:
+
+```bash
+npm run ng -- generate component my-component
+```
+
+## Development Server Options
+
+The Angular development server supports several useful options:
+
+### Custom Port
+
+```bash
+ng serve --port 4300
+```
+
+### Open Browser Automatically
+
+```bash
+ng serve --open
+```
+
+### Specific Host
+
+```bash
+ng serve --host 0.0.0.0
+```
+
+This allows access from other devices on your network.
+
+### Production Configuration
+
+```bash
+ng serve --configuration production
+```
+
+Run the dev server with production optimizations applied.
+
+## Hot Module Replacement
+
+The development server includes hot module replacement (HMR), which means:
+
+- Changes to TypeScript files automatically recompile
+- The browser refreshes to show your changes
+- Component state can be preserved during updates
+- Styles update without a full page reload
+
+<Note>
+The Angular CLI's development server uses the `@angular/build:dev-server` builder configured in `angular.json`. The default configuration is set to `development` mode.
+</Note>
+
+## Development Workflow
+
+<Steps>
+  <Step title="Start the Server">
+    ```bash
+    npm start
+    ```
+  </Step>
+
+  <Step title="Make Changes">
+    Edit your component files in `src/app/`. Changes are detected automatically.
+  </Step>
+
+  <Step title="View Changes">
+    The browser automatically reloads to show your updates.
+  </Step>
+
+  <Step title="Debug Issues">
+    Use browser DevTools to debug. Source maps are enabled in development mode.
+  </Step>
+</Steps>
+
+## Debugging Tips
+
+### Browser DevTools
+
+With source maps enabled (default in development), you can:
+- Set breakpoints in your TypeScript files
+- Inspect component state and properties
+- Monitor network requests
+- View console logs and errors
+
+### Angular DevTools
+
+Install the Angular DevTools browser extension for:
+- Component tree inspection
+- Change detection profiling
+- Dependency injection hierarchy
+- Performance profiling
+
+Available for [Chrome](https://chrome.google.com/webstore/detail/angular-devtools/) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/angular-devtools/).
+
+### Console Output
+
+The development server displays:
+- Compilation status and errors
+- Build time information
+- File change notifications
+- Warning and error messages
+
+### TypeScript Errors
+
+TypeScript compilation errors appear in:
+- The terminal running the dev server
+- Your code editor (if configured)
+- Browser console (for runtime errors)
+
+<Note>
+The project uses strict TypeScript settings. This catches more errors at compile time but may require more explicit type annotations.
+</Note>
+
+## File Watching
+
+The development server watches these file types:
+- TypeScript files (`.ts`)
+- HTML templates (`.html`)
+- CSS/SCSS styles (`.css`, `.scss`)
+- Angular configuration files
+
+### Excluded from Watching
+
+- `node_modules/`
+- Build output directories
+- Test files (unless running tests)
+
+## Configuration Files
+
+Key files affecting development:
+
+- **angular.json** - Dev server configuration at `projects.bases.architect.serve`
+- **tsconfig.app.json** - TypeScript compilation settings
+- **package.json** - npm scripts and dependencies
+
+## Next Steps
+
+After setting up development:
+- Learn about [building for production](/guides/building)
+- Set up [testing](/guides/testing)
+- Understand the [project structure](/guides/project-structure)

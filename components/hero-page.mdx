@@ -1,0 +1,235 @@
+---
+title: Hero Page Component
+description: Hero form component demonstrating signals for reactive state management
+---
+
+The **HeroPageComponent** demonstrates reactive state management using Angular signals to handle dynamic form data and computed values.
+
+## Component Files
+
+The component is located at `src/app/pages/hero/`:
+- `hero-page.component.ts` - Component logic
+- `hero-page.component.html` - Template
+
+## TypeScript Implementation
+
+<CodeGroup>
+```typescript hero-page.component.ts
+import { Component, signal } from "@angular/core";
+
+@Component({
+    templateUrl: './hero-page.component.html'
+})
+
+export class HeroPageComponent {
+name = signal('Ironman') 
+age = signal(45)
+getHeroDescription() {
+    return `${this.name()} - ${this.age()}`;
+}
+changeHero() {
+    this.name.set('spiderman');
+    this.age.set(22);
+}
+changeAge() {
+this.age.set(60);
+}
+resetForm() {
+    this.name.set('Ironman')
+    this.age.set(45)
+    }
+}
+```
+
+```html hero-page.component.html
+<h1>{{ name() }}</h1>
+
+<dl>
+  <td>Nombre:</td>
+  <dd>{{ name() }}</dd>
+
+  <td>Edad:</td>
+  <dd>{{ age() }}</dd>
+
+  <td>Método:</td>
+  <dd>{{ getHeroDescription() }}</dd>
+
+  <td>Capitalizado:</td>
+  <!-- ! Intentar  -->
+  <dd> {{ name().toUpperCase() }} </dd>
+</dl>
+
+<button (click)="changeHero()" class="btn btn-primary mx-2">
+  Cambiar nombre
+</button>
+
+<button (click)="changeAge()" class="btn btn-primary">Cambiar edad</button>
+
+<button (click)="resetForm()" class="btn btn-primary mx-2">Reset</button>
+```
+</CodeGroup>
+
+## Signal Properties
+
+The component maintains two reactive signals:
+
+### name
+```typescript
+name = signal('Ironman')
+```
+Holds the hero's name. Initialized with 'Ironman' as the default value.
+
+### age
+```typescript
+age = signal(45)
+```
+Holds the hero's age. Initialized with 45 as the default value.
+
+<Note>
+  Both signals are initialized with default values representing Ironman. The `resetForm()` method returns to these original values.
+</Note>
+
+## Methods
+
+### getHeroDescription()
+
+Returns a formatted string combining the hero's name and age:
+
+```typescript
+getHeroDescription() {
+    return `${this.name()} - ${this.age()}`;
+}
+```
+
+**Returns:** String in format "Name - Age" (e.g., "Ironman - 45")
+
+**Usage in template:**
+```html
+<dd>{{ getHeroDescription() }}</dd>
+```
+
+<Tip>
+  This method demonstrates computed values based on signals. It will automatically re-execute when either `name` or `age` signals change.
+</Tip>
+
+### changeHero()
+
+Switches the hero to Spiderman with corresponding age:
+
+```typescript
+changeHero() {
+    this.name.set('spiderman');
+    this.age.set(22);
+}
+```
+
+**Effect:** Updates both name and age signals atomically.
+
+### changeAge()
+
+Updates only the age to 60:
+
+```typescript
+changeAge() {
+    this.age.set(60);
+}
+```
+
+**Effect:** Modifies the age signal while keeping the name unchanged.
+
+### resetForm()
+
+Resets both signals to their initial values:
+
+```typescript
+resetForm() {
+    this.name.set('Ironman')
+    this.age.set(45)
+}
+```
+
+**Effect:** Returns the form to the default Ironman state.
+
+## Template Features
+
+### Signal Reading
+Signals are read by invoking them as functions:
+
+```html
+{{ name() }}
+{{ age() }}
+```
+
+### Signal Transformation
+You can call methods on signal values directly in templates:
+
+```html
+{{ name().toUpperCase() }}
+```
+
+This calls the `toUpperCase()` method on the string returned by `name()`.
+
+### Method Calls
+Component methods can be called in templates:
+
+```html
+{{ getHeroDescription() }}
+```
+
+### Event Binding
+Buttons trigger methods using Angular's event binding:
+
+```html
+<button (click)="changeHero()" class="btn btn-primary mx-2">
+  Cambiar nombre
+</button>
+```
+
+## Data Flow
+
+1. **Initial State**: Component loads with Ironman (age 45)
+2. **User Interaction**: User clicks a button
+3. **Signal Update**: Method updates signal(s) using `.set()`
+4. **Template Update**: Angular automatically re-renders affected template sections
+5. **Computed Values**: Any methods using signals are re-executed
+
+<Note>
+  The template uses a definition list (`<dl>`, `<dt>`, `<dd>`) to display hero properties in a structured format.
+</Note>
+
+## Key Patterns
+
+### Using .set() for Direct Assignment
+All updates use the `set()` method for direct value assignment:
+
+```typescript
+this.name.set('spiderman');
+this.age.set(22);
+```
+
+### Reading Signals in Methods
+When reading signals in component methods, invoke them as functions:
+
+```typescript
+return `${this.name()} - ${this.age()}`;
+```
+
+### Multiple Signal Updates
+You can update multiple signals in a single method:
+
+```typescript
+changeHero() {
+    this.name.set('spiderman');
+    this.age.set(22);
+}
+```
+
+Both updates will be processed, and the template will update once to reflect all changes.
+
+## Key Takeaways
+
+1. **Simple state management** - Signals provide reactive state without complex setup
+2. **Computed values** - Methods that read signals automatically react to changes
+3. **Direct transformations** - Signal values can be transformed directly in templates
+4. **Multiple updates** - Multiple signals can be updated in a single method
+5. **Type safety** - TypeScript infers signal types from initial values

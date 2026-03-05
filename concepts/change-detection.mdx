@@ -1,0 +1,330 @@
+---
+title: 'Change Detection'
+description: 'Understanding Angular change detection and OnPush strategy'
+---
+
+# Change Detection
+
+Change detection is the mechanism Angular uses to determine when to update the DOM based on changes in your application state. Understanding and optimizing change detection is crucial for building performant Angular applications.
+
+## How Change Detection Works
+
+By default, Angular checks every component in the component tree whenever any event occurs (clicks, HTTP requests, timers, etc.). This ensures the UI stays in sync with application state but can impact performance in large applications.
+
+## Change Detection Strategies
+
+Angular provides two change detection strategies:
+
+### Default Strategy
+
+Checks the component and all its children on every change detection cycle:
+
+```typescript
+import { Component } from '@angular/core';
+
+@Component({
+  templateUrl: './my-component.html',
+  // Default strategy (implicit)
+})
+export class MyComponent {}
+```
+
+### OnPush Strategy
+
+Only checks the component when:
+- An `@Input()` reference changes
+- An event originates from the component or its children
+- Manual change detection is triggered
+- An async pipe receives a new value
+
+```typescript
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+
+@Component({
+  templateUrl: './counter-page.html',
+  styles: `
+    button {
+      padding: 5px;
+      margin: 5px 10px;
+      width: 75px;
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class CounterPage {
+  counter = 10;
+  counterSignal = signal(10);
+  
+  incremento(value: number) {
+    this.counter += value;
+    this.counterSignal.update((current) => current + value);
+  }
+
+  resetContador() {
+    this.counter = 0;
+    this.counterSignal.set(0);
+  }
+}
+```
+
+**Source:** `src/app/pages/counter/counter-page.ts:1-30`
+
+<Note>
+OnPush strategy significantly improves performance by reducing unnecessary checks. It's especially effective when used with signals.
+</Note>
+
+## Signals and Change Detection
+
+Signals work seamlessly with OnPush change detection. When a signal value changes, Angular automatically marks the component for checking:
+
+```typescript
+export class CounterPage {
+  counterSignal = signal(10);
+  
+  incremento(value: number) {
+    // Signal update automatically triggers change detection
+    this.counterSignal.update((current) => current + value);
+  }
+}
+```
+
+### In Templates
+
+When you use signals in templates, Angular tracks the dependency:
+
+```html
+<h1>Counter: {{ counter }}</h1>
+<h1>Counter Signal: {{ counterSignal() }}</h1>
+<hr/>
+<button (click)="incremento(1)">+1</button>
+<button (click)="incremento(-1)">-1</button>
+<button (click)="resetContador()">Reset</button>
+```
+
+**Source:** `src/app/pages/counter/counter-page.html:1-6`
+
+<Tip>
+Notice how `counter` and `counterSignal()` are both displayed. The signal (with parentheses) automatically notifies Angular when it changes, making it perfect for OnPush components.
+</Tip>
+
+## OnPush with Traditional Properties
+
+With OnPush strategy, traditional property updates might not trigger UI updates:
+
+```typescript
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class CounterPage {
+  // Traditional property
+  counter = 10;
+  
+  incremento(value: number) {
+    // This updates the value but might not update the UI
+    this.counter += value;
+  }
+}
+```
+
+The template will update because the event (`click`) originates from the component, but external changes won't be detected.
+
+## OnPush with Complex Objects
+
+When working with objects or arrays, create new references to trigger change detection:
+
+```typescript
+import { Component, signal } from '@angular/core';
+
+interface Character {
+  id: number;
+  name: string;
+  power: number;
+}
+
+@Component({
+  templateUrl: './dragonball-super-page.html',
+})
+export class DragonballSuperPage {
+  characters = signal<Character[]>([
+    { id: 1, name: 'Goku', power: 9001 },
+    { id: 2, name: 'Vegeta', power: 8000 },
+  ]);
+
+  addCharacter() {
+    const newCharacter: Character = {
+      id: this.characters().length + 1,
+      name: this.name(),
+      power: this.power(),
+    };
+
+    // Create new array reference - essential for change detection
+    this.characters.update(chars => [...chars, newCharacter]);
+  }
+}
+```
+
+**Source:** `src/app/pages/dragonball-super/dragonball-super-page.ts:1-37`
+
+<Warning>
+Never mutate objects or arrays directly inside signals:
+
+```typescript
+// Wrong - mutation doesn't trigger updates
+this.characters().push(newCharacter);
+
+// Correct - new reference triggers updates
+this.characters.update(chars => [...chars, newCharacter]);
+```
+</Warning>
+
+## When to Use OnPush
+
+OnPush strategy is ideal when:
+
+<Tip>
+**Use OnPush when:**
+- Working with signals for state management
+- Component relies on immutable data patterns
+- Using async pipe with observables
+- Building performance-critical features
+- Component has many children that don't need frequent updates
+- Input data changes infrequently
+</Tip>
+
+## Performance Benefits
+
+OnPush strategy provides significant performance improvements:
+
+### Before OnPush
+```typescript
+// Component checked on every change detection cycle
+// Even if nothing changed in this component
+@Component({
+  templateUrl: './my-component.html',
+})
+export class MyComponent {
+  data = signal([]);
+}
+```
+
+### After OnPush
+```typescript
+// Component only checked when necessary
+@Component({
+  templateUrl: './my-component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class MyComponent {
+  data = signal([]);
+}
+```
+
+## Manual Change Detection
+
+Sometimes you need to manually trigger change detection:
+
+```typescript
+import { ChangeDetectorRef, Component } from '@angular/core';
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './my-component.html',
+})
+export class MyComponent {
+  constructor(private cdr: ChangeDetectorRef) {}
+
+  updateFromExternalSource(data: any) {
+    this.processData(data);
+    // Manually mark for check
+    this.cdr.markForCheck();
+  }
+}
+```
+
+<Note>
+With signals, manual change detection is rarely needed. Signals automatically handle change detection for you.
+</Note>
+
+## Async Pipe with OnPush
+
+The async pipe works perfectly with OnPush strategy:
+
+```typescript
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
+import { AsyncPipe } from '@angular/common';
+
+@Component({
+  imports: [AsyncPipe],
+  template: '<div>{{ data$ | async }}</div>',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class MyComponent {
+  data$: Observable<any>;
+}
+```
+
+The async pipe automatically marks the component for check when the observable emits.
+
+## Common Pitfalls
+
+### Mutating Objects
+
+```typescript
+// Wrong - doesn't trigger change detection
+this.characters().push(newItem);
+
+// Correct - creates new reference
+this.characters.update(chars => [...chars, newItem]);
+```
+
+### Forgetting to Call Signals
+
+```html
+<!-- Wrong - doesn't call the signal -->
+<h1>{{ counterSignal }}</h1>
+
+<!-- Correct - calls signal as function -->
+<h1>{{ counterSignal() }}</h1>
+```
+
+### Mixing Strategies
+
+```typescript
+// Avoid mixing signal and non-signal approaches
+export class CounterPage {
+  counter = 10;              // Traditional property
+  counterSignal = signal(10); // Signal property
+  
+  // Inconsistent updates
+  incremento(value: number) {
+    this.counter += value;                              // No automatic detection
+    this.counterSignal.update((current) => current + value); // Automatic detection
+  }
+}
+```
+
+**Source:** `src/app/pages/counter/counter-page.ts:18-23`
+
+<Tip>
+Choose one approach: either use signals everywhere or stick with traditional change detection patterns. Mixing them can lead to confusion and bugs.
+</Tip>
+
+## Best Practices
+
+<Tip>
+**Change Detection Best Practices:**
+- Use OnPush strategy with signals for optimal performance
+- Always create new references for objects and arrays in signals
+- Let signals handle change detection automatically
+- Use async pipe for observables in OnPush components
+- Avoid manual change detection when using signals
+- Call signals as functions in templates: `{{ signal() }}`
+- Keep components pure and predictable
+</Tip>
+
+## Next Steps
+
+- Learn about [Signals](/concepts/signals) for reactive state management
+- Explore [Components](/concepts/components) architecture
+- Understand [Routing](/concepts/routing) for navigation between views

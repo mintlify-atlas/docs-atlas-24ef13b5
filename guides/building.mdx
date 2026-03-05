@@ -1,0 +1,322 @@
+---
+title: Building for Production
+description: Building and optimizing Angular Bases for production deployment
+---
+
+## Overview
+
+Angular Bases uses the Angular CLI to build optimized production bundles with advanced optimization techniques including tree-shaking, minification, and dead code elimination.
+
+## Building the Application
+
+### Production Build
+
+<CodeGroup>
+```bash npm
+npm run build
+```
+
+```bash Angular CLI
+ng build
+```
+</CodeGroup>
+
+This creates an optimized production build in the `dist/` directory.
+
+<Note>
+The default build configuration is **production** as specified in `angular.json`. Production builds include all optimizations by default.
+</Note>
+
+## Build Configurations
+
+The project supports two build configurations:
+
+### Production Configuration
+
+Optimized for deployment with:
+
+```json
+{
+  "budgets": [
+    {
+      "type": "initial",
+      "maximumWarning": "500kB",
+      "maximumError": "1MB"
+    },
+    {
+      "type": "anyComponentStyle",
+      "maximumWarning": "4kB",
+      "maximumError": "8kB"
+    }
+  ],
+  "outputHashing": "all"
+}
+```
+
+**Features:**
+- Output hashing enabled for cache busting
+- Bundle size budgets enforced
+- Full optimization enabled
+- License extraction enabled
+- Source maps disabled
+
+### Development Configuration
+
+Faster builds for development:
+
+```json
+{
+  "optimization": false,
+  "extractLicenses": false,
+  "sourceMap": true
+}
+```
+
+**Features:**
+- No optimization for faster builds
+- Source maps enabled for debugging
+- No license extraction
+- No output hashing
+
+To build with development configuration:
+
+```bash
+ng build --configuration development
+```
+
+## Build Output
+
+### Output Directory
+
+Builds are output to the `dist/` directory with the following structure:
+
+```
+dist/
+├── browser/
+│   ├── index.html
+│   ├── main-[hash].js
+│   ├── polyfills-[hash].js
+│   ├── styles-[hash].css
+│   └── favicon.ico
+```
+
+### Output Hashing
+
+Production builds include content hashes in filenames (e.g., `main-ABC123.js`). This ensures:
+- Browsers don't cache old versions after deployments
+- Unchanged files can remain cached
+- Optimal cache performance
+
+## Bundle Size Budgets
+
+The project enforces bundle size limits to prevent performance degradation:
+
+### Initial Bundle Budget
+
+- **Warning**: 500 kB
+- **Error**: 1 MB
+
+If the initial bundle exceeds these limits, the build will warn or fail.
+
+### Component Style Budget
+
+- **Warning**: 4 kB per component
+- **Error**: 8 kB per component
+
+Keeps individual component styles lightweight.
+
+<Note>
+Budgets are enforced only in production builds. If your build fails due to budget limits, consider:
+- Lazy loading routes
+- Splitting large components
+- Optimizing images and assets
+- Removing unused dependencies
+</Note>
+
+## Build Optimizations
+
+Production builds automatically apply:
+
+### Tree Shaking
+
+Removes unused code from the final bundle. Only imports that are actually used are included.
+
+### Minification
+
+Compresses JavaScript and CSS:
+- Removes whitespace and comments
+- Shortens variable names
+- Optimizes syntax
+
+### Dead Code Elimination
+
+Removes code that cannot be reached or executed.
+
+### Ahead-of-Time (AOT) Compilation
+
+Templates are compiled during the build process:
+- Faster rendering at runtime
+- Smaller framework footprint
+- Early detection of template errors
+
+## Build Process
+
+<Steps>
+  <Step title="TypeScript Compilation">
+    Source files are compiled according to `tsconfig.app.json`.
+  </Step>
+
+  <Step title="Template Compilation">
+    Angular templates are compiled to TypeScript.
+  </Step>
+
+  <Step title="Bundling">
+    Application code is bundled with the Angular framework.
+  </Step>
+
+  <Step title="Optimization">
+    Tree-shaking, minification, and other optimizations are applied.
+  </Step>
+
+  <Step title="Asset Processing">
+    Static assets from `public/` are copied to the output directory.
+    Styles from `src/styles.css` are processed and bundled.
+  </Step>
+
+  <Step title="Output">
+    Final optimized files are written to `dist/browser/`.
+  </Step>
+</Steps>
+
+## Advanced Build Options
+
+### Source Maps
+
+Generate source maps for production debugging:
+
+```bash
+ng build --source-map
+```
+
+<Note>
+Source maps increase bundle size and expose your source code. Only use for debugging production issues.
+</Note>
+
+### Base Href
+
+Set the base URL for the application:
+
+```bash
+ng build --base-href /my-app/
+```
+
+Useful when deploying to a subdirectory.
+
+### Stats JSON
+
+Generate bundle statistics:
+
+```bash
+ng build --stats-json
+```
+
+Creates `stats.json` for analysis with tools like [webpack-bundle-analyzer](https://www.npmjs.com/package/webpack-bundle-analyzer).
+
+## Deployment Preparation
+
+After building:
+
+<Steps>
+  <Step title="Test the Build">
+    Serve the production build locally to verify:
+    
+    ```bash
+    npx http-server dist/browser -p 8080
+    ```
+  </Step>
+
+  <Step title="Check Bundle Sizes">
+    Review the build output for bundle sizes:
+    
+    ```
+    Initial chunk files   | Names         |  Raw size
+    main-ABC123.js        | main          | 234.56 kB
+    polyfills-XYZ789.js   | polyfills     |  45.12 kB
+    styles-DEF456.css     | styles        |   8.34 kB
+    ```
+  </Step>
+
+  <Step title="Deploy">
+    Upload the contents of `dist/browser/` to your hosting provider.
+  </Step>
+</Steps>
+
+## Build Configuration Details
+
+From `angular.json`, the build is configured with:
+
+```json
+{
+  "builder": "@angular/build:application",
+  "options": {
+    "browser": "src/main.ts",
+    "tsConfig": "tsconfig.app.json",
+    "assets": [
+      {
+        "glob": "**/*",
+        "input": "public"
+      }
+    ],
+    "styles": [
+      "src/styles.css"
+    ]
+  },
+  "defaultConfiguration": "production"
+}
+```
+
+### Assets Configuration
+
+Files from the `public/` directory are copied to the build output. Add additional assets by updating the `assets` array in `angular.json`.
+
+### Styles Configuration
+
+Global styles from `src/styles.css` are processed and bundled. Component-specific styles are automatically included from their respective component files.
+
+<Note>
+Angular Bases uses the new `@angular/build:application` builder (esbuild-based), which provides:
+- Faster build times
+- Smaller bundle sizes
+- Better tree-shaking
+- Modern JavaScript output
+</Note>
+
+## Troubleshooting
+
+### Build Fails with Budget Errors
+
+Reduce bundle size by:
+- Implementing lazy loading for routes
+- Removing unused dependencies
+- Optimizing images and assets
+- Code splitting large features
+
+### TypeScript Errors
+
+Check:
+- `tsconfig.app.json` for correct configuration
+- All imports are valid
+- Type definitions are installed for third-party libraries
+
+### Missing Assets
+
+Ensure assets are:
+- Located in the `public/` directory
+- Referenced correctly in your code
+- Listed in `angular.json` assets array if from other locations
+
+## Next Steps
+
+- Set up [automated testing](/guides/testing)
+- Learn about the [project structure](/guides/project-structure)
+- Configure [development environment](/guides/development)

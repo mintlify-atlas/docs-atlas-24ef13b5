@@ -1,0 +1,374 @@
+---
+title: 'Components'
+description: 'Understanding Angular component architecture and standalone components'
+---
+
+# Angular Components
+
+Components are the fundamental building blocks of Angular applications. Each component encapsulates the template, styles, and behavior for a part of your user interface.
+
+## Component Structure
+
+An Angular component consists of:
+- A TypeScript class with a `@Component` decorator
+- An HTML template (inline or external)
+- Optional CSS styles
+- Component metadata (selector, imports, etc.)
+
+## Basic Component Example
+
+Here's a simple component from the application:
+
+```typescript
+import { Component, signal } from '@angular/core';
+
+@Component({
+  templateUrl: './hero-page.component.html'
+})
+export class HeroPageComponent {
+  name = signal('Ironman');
+  age = signal(45);
+  
+  getHeroDescription() {
+    return `${this.name()} - ${this.age()}`;
+  }
+  
+  changeHero() {
+    this.name.set('spiderman');
+    this.age.set(22);
+  }
+  
+  changeAge() {
+    this.age.set(60);
+  }
+  
+  resetForm() {
+    this.name.set('Ironman');
+    this.age.set(45);
+  }
+}
+```
+
+**Source:** `src/app/pages/hero/hero-page.component.ts:1-24`
+
+## Component Decorator
+
+The `@Component` decorator provides metadata about the component:
+
+### Required Properties
+
+```typescript
+@Component({
+  templateUrl: './counter-page.html',
+  styles: `
+    button {
+      padding: 5px;
+      margin: 5px 10px;
+      width: 75px;
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+```
+
+**Source:** `src/app/pages/counter/counter-page.ts:3-13`
+
+### Template Options
+
+Choose between external or inline templates:
+
+```typescript
+// External template file
+@Component({
+  templateUrl: './hero-page.component.html'
+})
+
+// Inline template
+@Component({
+  template: `
+    <h1>{{ title }}</h1>
+    <p>Content here</p>
+  `
+})
+```
+
+### Style Options
+
+Add component-specific styles:
+
+```typescript
+// Inline styles
+@Component({
+  styles: `
+    button {
+      padding: 5px;
+      margin: 5px 10px;
+      width: 75px;
+    }
+  `
+})
+
+// External stylesheet
+@Component({
+  styleUrl: './component.css'
+})
+
+// Multiple stylesheets
+@Component({
+  styleUrls: ['./component.css', './theme.css']
+})
+```
+
+<Note>
+Component styles are scoped by default. They only apply to the component's template, not to child components or the rest of the application.
+</Note>
+
+## Standalone Components
+
+Modern Angular components use standalone mode, which eliminates the need for NgModules:
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { Navbar } from "./components/shared/navbar/navbar";
+
+@Component({
+  selector: 'app-root',
+  imports: [RouterOutlet, Navbar],
+  templateUrl: './app.html',
+})
+export class App {
+  protected readonly title = signal('Miguel');
+}
+```
+
+**Source:** `src/app/app.ts:1-13`
+
+### Imports Array
+
+The `imports` array declares dependencies directly in the component:
+
+```typescript
+@Component({
+  selector: 'app-navbar',
+  imports: [RouterLink, RouterLinkActive],
+  templateUrl: './navbar.html',
+})
+export class Navbar {}
+```
+
+**Source:** `src/app/components/shared/navbar/navbar.ts:4-8`
+
+<Tip>
+**Standalone Benefits:**
+- Simpler dependency management
+- No NgModule boilerplate
+- Better tree-shaking and bundle optimization
+- Easier to understand component dependencies
+- Recommended for new Angular applications
+</Tip>
+
+## Component Selector
+
+The selector defines the custom HTML tag:
+
+```typescript
+@Component({
+  selector: 'app-root',
+  imports: [RouterOutlet, Navbar],
+  templateUrl: './app.html',
+})
+export class App {
+  protected readonly title = signal('Miguel');
+}
+```
+
+Use it in templates:
+
+```html
+<app-root></app-root>
+```
+
+## Component Class
+
+The TypeScript class contains the component's logic:
+
+### Properties
+
+Define reactive state with signals:
+
+```typescript
+export class DragonballSuperPage {
+  name = signal('');
+  power = signal(0);
+
+  characters = signal<Character[]>([
+    { id: 1, name: 'Goku', power: 9001 },
+    { id: 2, name: 'Vegeta', power: 8000 },
+  ]);
+}
+```
+
+**Source:** `src/app/pages/dragonball-super/dragonball-super-page.ts:14-20`
+
+### Methods
+
+Implement component behavior:
+
+```typescript
+export class DragonballSuperPage {
+  addCharacter() {
+    // Validation
+    if (!this.name().trim() || this.power() <= 0) {
+      return;
+    }
+
+    const newCharacter: Character = {
+      id: this.characters().length + 1,
+      name: this.name(),
+      power: this.power(),
+    };
+
+    // Update signal
+    this.characters.update(chars => [...chars, newCharacter]);
+  }
+}
+```
+
+**Source:** `src/app/pages/dragonball-super/dragonball-super-page.ts:22-36`
+
+## Component Templates
+
+Templates define the component's HTML structure:
+
+### Data Binding
+
+```html
+<!-- Interpolation -->
+<h1>{{ name() }}</h1>
+
+<!-- Property binding -->
+<input [value]="name()">
+
+<!-- Event binding -->
+<button (click)="changeHero()">Cambiar nombre</button>
+
+<!-- Two-way binding -->
+<input [(ngModel)]="name">
+```
+
+**Source:** `src/app/pages/hero/hero-page.component.html:1-24`
+
+### Calling Signal Values
+
+```html
+<h1>{{ name() }}</h1>
+
+<dl>
+  <td>Nombre:</td>
+  <dd>{{ name() }}</dd>
+
+  <td>Edad:</td>
+  <dd>{{ age() }}</dd>
+
+  <td>Método:</td>
+  <dd>{{ getHeroDescription() }}</dd>
+
+  <td>Capitalizado:</td>
+  <dd>{{ name().toUpperCase() }}</dd>
+</dl>
+```
+
+## Component Communication
+
+### Parent to Child
+
+Use `@Input()` to pass data:
+
+```typescript
+import { Component, input } from '@angular/core';
+
+@Component({
+  selector: 'app-child',
+  template: '<p>{{ data() }}</p>'
+})
+export class ChildComponent {
+  data = input<string>();
+}
+```
+
+### Child to Parent
+
+Use `@Output()` to emit events:
+
+```typescript
+import { Component, output } from '@angular/core';
+
+@Component({
+  selector: 'app-child',
+  template: '<button (click)="notify()">Click</button>'
+})
+export class ChildComponent {
+  clicked = output<void>();
+
+  notify() {
+    this.clicked.emit();
+  }
+}
+```
+
+## Application Bootstrap
+
+Bootstrap your root component:
+
+```typescript
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { App } from './app/app';
+
+bootstrapApplication(App, appConfig)
+  .catch((err) => console.error(err));
+```
+
+**Source:** `src/main.ts:1-6`
+
+<Warning>
+The root component (typically `App`) must be bootstrapped using `bootstrapApplication()` for standalone components.
+</Warning>
+
+## Component Lifecycle
+
+Common lifecycle hooks:
+
+```typescript
+import { Component, OnInit, OnDestroy } from '@angular/core';
+
+export class MyComponent implements OnInit, OnDestroy {
+  ngOnInit() {
+    // Initialize component
+  }
+
+  ngOnDestroy() {
+    // Cleanup before component is destroyed
+  }
+}
+```
+
+## Best Practices
+
+<Tip>
+**Component Design Tips:**
+- Use standalone components for new development
+- Keep components focused on a single responsibility
+- Use signals for reactive state management
+- Import only what you need in the imports array
+- Use OnPush change detection with signals for better performance
+- External templates for complex HTML, inline for simple components
+- Scope styles to components to avoid conflicts
+</Tip>
+
+## Next Steps
+
+- Learn about [Signals](/concepts/signals) for reactive state management
+- Understand [Change Detection](/concepts/change-detection) strategies
+- Explore [Routing](/concepts/routing) to connect components with navigation

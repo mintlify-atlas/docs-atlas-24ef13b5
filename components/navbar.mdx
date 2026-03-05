@@ -1,0 +1,263 @@
+---
+title: Navbar Component
+description: Navigation component with RouterLink and active route highlighting
+---
+
+The **Navbar** component is a shared component that provides navigation across the application using Angular's Router with visual feedback for the active route.
+
+## Component Files
+
+The component is located at `src/app/components/shared/navbar/`:
+- `navbar.ts` - Component logic
+- `navbar.html` - Template with inline styles
+
+## TypeScript Implementation
+
+```typescript navbar.ts
+import { Component } from '@angular/core';
+import { RouterLink, RouterLinkActive } from "@angular/router";
+
+@Component({
+  selector: 'app-navbar',
+  imports: [RouterLink, RouterLinkActive],
+  templateUrl: './navbar.html',
+})
+export class Navbar {
+
+}
+```
+
+### Component Configuration
+
+**Selector:** `app-navbar`
+- Used in templates as `<app-navbar></app-navbar>`
+
+**Imports:** `[RouterLink, RouterLinkActive]`
+- `RouterLink` - Directive for navigation
+- `RouterLinkActive` - Directive for styling active routes
+
+<Note>
+  This is a standalone component, meaning it directly imports the directives it needs without requiring an NgModule.
+</Note>
+
+## HTML Template
+
+```html navbar.html
+<style>
+    nav{
+        display: flex;
+        justify-content: space-around;
+        background-color: #212121;
+        color: white;
+        padding: 10px;
+
+    }
+
+    nav a{
+        color: white;
+        text-decoration: none;
+    }
+    nav a.active{
+        color: red;
+        text-decoration: underline;
+    }
+</style>
+
+<nav>
+    <a routerLink="/" routerLinkActive="active"
+    [routerLinkActiveOptions]="{exact:true}">Contador</a>
+    <a [routerLink]="['/hero']" [routerLinkActive]="'active'">Hero</a>
+    <a [routerLink]="['/dragonball']" [routerLinkActive]="'active'">Dragonball</a>
+    <a [routerLink]="['/dragonball-super']" [routerLinkActive]="'active'">Dragonball Super</a>
+</nav>
+```
+
+## Styling
+
+### Navigation Bar Styles
+
+```css
+nav{
+    display: flex;
+    justify-content: space-around;
+    background-color: #212121;
+    color: white;
+    padding: 10px;
+}
+```
+
+**Layout:**
+- `display: flex` - Flexbox layout
+- `justify-content: space-around` - Distributes links evenly with space around them
+- Dark theme with `#212121` background
+
+### Link Styles
+
+```css
+nav a{
+    color: white;
+    text-decoration: none;
+}
+nav a.active{
+    color: red;
+    text-decoration: underline;
+}
+```
+
+**Default links:** White text, no underline  
+**Active link:** Red text with underline
+
+<Note>
+  The styles are defined inline in the template file using a `<style>` tag. These styles are still scoped to the component.
+</Note>
+
+## Router Directives
+
+### RouterLink
+
+Navigates to different routes when clicked:
+
+```html
+<!-- String syntax -->
+<a routerLink="/">Contador</a>
+
+<!-- Array syntax -->
+<a [routerLink]="['/hero']">Hero</a>
+```
+
+**Two syntaxes:**
+- **Attribute binding:** `routerLink="/path"` - For simple static paths
+- **Property binding:** `[routerLink]="['/path']"` - For dynamic paths or paths with parameters
+
+Both are functionally equivalent for simple routes.
+
+### RouterLinkActive
+
+Automatically applies a CSS class when the route is active:
+
+```html
+<a routerLink="/" routerLinkActive="active">
+```
+
+**Behavior:**
+- Adds the `active` class when the route matches
+- Removes the class when navigating away
+- Works with the CSS rule `nav a.active`
+
+### RouterLinkActiveOptions
+
+Controls how route matching works:
+
+```html
+<a routerLink="/" 
+   routerLinkActive="active"
+   [routerLinkActiveOptions]="{exact:true}">
+```
+
+**Options:**
+- `exact: true` - Only match if the route is exactly `/`
+- `exact: false` (default) - Match if the route starts with `/`
+
+<Tip>
+  Use `exact: true` for the root route (`/`) to prevent it from being active on all routes, since all paths start with `/`.
+</Tip>
+
+## Navigation Links
+
+The navbar provides access to all four pages:
+
+| Link | Route | Component | Exact Match |
+|------|-------|-----------|-------------|
+| Contador | `/` | CounterPage | Yes |
+| Hero | `/hero` | HeroPageComponent | No |
+| Dragonball | `/dragonball` | DragonballPage | No |
+| Dragonball Super | `/dragonball-super` | DragonballSuperPage | No |
+
+## Usage in App Component
+
+The Navbar is used in the main App component:
+
+```typescript app.ts
+import { Component, signal } from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { Navbar } from "./components/shared/navbar/navbar";
+
+@Component({
+  selector: 'app-root',
+  imports: [RouterOutlet, Navbar],
+  templateUrl: './app.html',
+  
+})
+export class App {
+  protected readonly title = signal('Miguel');
+}
+```
+
+```html app.html
+<app-navbar></app-navbar>   
+ <router-outlet />
+<footer>Soy un footer</footer>
+```
+
+**Layout structure:**
+1. Navbar at the top
+2. `<router-outlet />` for page content
+3. Footer at the bottom
+
+<Note>
+  The App component imports both `RouterOutlet` (for rendering routed components) and `Navbar` (the navigation component) in its standalone imports array.
+</Note>
+
+## Router Configuration
+
+The routes are defined in `app.routes.ts` and match the navbar links:
+
+```typescript
+export const routes: Routes = [
+  { path: '', component: CounterPage },
+  { path: 'hero', component: HeroPageComponent },
+  { path: 'dragonball', component: DragonballPage },
+  { path: 'dragonball-super', component: DragonballSuperPage },
+];
+```
+
+## Key Patterns
+
+### Standalone Component with Directives
+
+Import router directives directly in the component:
+
+```typescript
+imports: [RouterLink, RouterLinkActive]
+```
+
+### Exact Matching for Root Route
+
+Always use exact matching for the root route:
+
+```html
+<a routerLink="/" 
+   routerLinkActive="active"
+   [routerLinkActiveOptions]="{exact:true}">
+```
+
+### Inline Styles in Template
+
+You can include `<style>` tags directly in the template file:
+
+```html
+<style>
+  /* component styles */
+</style>
+<nav>...</nav>
+```
+
+## Key Takeaways
+
+1. **Shared components** - Reusable across the application
+2. **RouterLink** - Declarative navigation without full page reloads
+3. **RouterLinkActive** - Automatic active state management
+4. **Exact matching** - Essential for root routes to prevent always-active state
+5. **Standalone imports** - Import router directives directly in the component
+6. **Flexbox layout** - Modern CSS for responsive navigation
+7. **Visual feedback** - Active route styling improves UX

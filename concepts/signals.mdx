@@ -1,0 +1,206 @@
+---
+title: 'Signals'
+description: 'Learn about Angular signals for reactive state management'
+---
+
+# Angular Signals
+
+Angular signals are a reactive primitive that provides a new way to manage state in your applications. Signals offer fine-grained reactivity and improved performance over traditional change detection.
+
+## What are Signals?
+
+Signals are a reactive wrapper around a value that notifies Angular when the value changes. When you read a signal's value, Angular automatically tracks where it's used, enabling efficient updates.
+
+<Note>
+Signals are available in Angular 16+ and represent the future of reactive state management in Angular applications.
+</Note>
+
+## Creating Signals
+
+Use the `signal()` function to create a signal with an initial value:
+
+```typescript
+import { Component, signal } from '@angular/core';
+
+@Component({
+  templateUrl: './hero-page.component.html'
+})
+export class HeroPageComponent {
+  name = signal('Ironman');
+  age = signal(45);
+
+  getHeroDescription() {
+    return `${this.name()} - ${this.age()}`;
+  }
+}
+```
+
+**Source:** `src/app/pages/hero/hero-page.component.ts:8-12`
+
+## Reading Signal Values
+
+To read a signal's value, call it as a function. In templates, Angular automatically subscribes to signal changes:
+
+```html
+<h1>{{ name() }}</h1>
+
+<dl>
+  <td>Nombre:</td>
+  <dd>{{ name() }}</dd>
+
+  <td>Edad:</td>
+  <dd>{{ age() }}</dd>
+
+  <td>Método:</td>
+  <dd>{{ getHeroDescription() }}</dd>
+
+  <td>Capitalizado:</td>
+  <dd>{{ name().toUpperCase() }}</dd>
+</dl>
+```
+
+**Source:** `src/app/pages/hero/hero-page.component.html:1-16`
+
+## Updating Signals
+
+Signals provide two methods for updating values:
+
+### Using `set()`
+
+Directly set a new value:
+
+```typescript
+changeHero() {
+  this.name.set('spiderman');
+  this.age.set(22);
+}
+
+resetForm() {
+  this.name.set('Ironman');
+  this.age.set(45);
+}
+```
+
+**Source:** `src/app/pages/hero/hero-page.component.ts:13-23`
+
+### Using `update()`
+
+Update based on the current value:
+
+```typescript
+import { Component, signal } from '@angular/core';
+
+export class CounterPage {
+  counterSignal = signal(10);
+
+  incremento(value: number) {
+    this.counterSignal.update((current) => current + value);
+  }
+
+  resetContador() {
+    this.counterSignal.set(0);
+  }
+}
+```
+
+**Source:** `src/app/pages/counter/counter-page.ts:19-28`
+
+## Signals with Arrays and Objects
+
+For complex data structures, use `update()` to create new references:
+
+```typescript
+interface Character {
+  id: number;
+  name: string;
+  power: number;
+}
+
+export class DragonballPage {
+  name = signal('');
+  power = signal(0);
+
+  characters = signal<Character[]>([
+    { id: 1, name: 'Goku', power: 9001 },
+  ]);
+
+  addCharacter() {
+    if (!this.name().trim() || this.power() <= 0) {
+      return;
+    }
+
+    const newCharacter: Character = {
+      id: this.characters().length + 1,
+      name: this.name(),
+      power: this.power(),
+    };
+
+    // Create new array reference to trigger reactivity
+    this.characters.update(chars => [...chars, newCharacter]);
+  }
+}
+```
+
+**Source:** `src/app/pages/dragonball/dragonball-page.ts:14-38`
+
+<Warning>
+When working with arrays or objects in signals, always create a new reference using spread operators or array methods. Mutating the existing object won't trigger updates.
+</Warning>
+
+## Template Integration
+
+In templates, signals are called as functions and Angular automatically tracks dependencies:
+
+```html
+<h1>Counter: {{ counter }}</h1>
+<h1>Counter Signal: {{ counterSignal() }}</h1>
+<hr/>
+<button (click)="incremento(1)">+1</button>
+<button (click)="incremento(-1)">-1</button>
+<button (click)="resetContador()">Reset</button>
+```
+
+**Source:** `src/app/pages/counter/counter-page.html:1-6`
+
+## Benefits of Signals
+
+<Tip>
+**Key Advantages:**
+- Fine-grained reactivity - only components using the signal update
+- Better performance with OnPush change detection
+- Simpler state management without RxJS complexity
+- Automatic dependency tracking in templates
+- Type-safe updates with TypeScript
+</Tip>
+
+## Signals vs Traditional Properties
+
+Compare the traditional approach with signals:
+
+```typescript
+export class CounterPage {
+  // Traditional property
+  counter = 10;
+  
+  // Signal-based property
+  counterSignal = signal(10);
+  
+  incremento(value: number) {
+    // Traditional update
+    this.counter += value;
+    
+    // Signal update
+    this.counterSignal.update((current) => current + value);
+  }
+}
+```
+
+**Source:** `src/app/pages/counter/counter-page.ts:18-23`
+
+The signal approach provides reactive updates that work seamlessly with Angular's change detection, especially when using `OnPush` strategy.
+
+## Next Steps
+
+- Learn about [Change Detection](/concepts/change-detection) and how signals improve performance
+- Explore [Components](/concepts/components) to understand where signals fit in your architecture
+- See [Routing](/concepts/routing) to manage navigation state with signals

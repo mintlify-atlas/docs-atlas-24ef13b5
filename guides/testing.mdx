@@ -1,0 +1,409 @@
+---
+title: Testing
+description: Testing Angular Bases components and features with Vitest
+---
+
+## Overview
+
+Angular Bases uses [Vitest](https://vitest.dev) as its testing framework. Vitest provides a fast, modern testing experience with excellent TypeScript support and familiar Jest-compatible APIs.
+
+## Running Tests
+
+### Execute Test Suite
+
+<CodeGroup>
+```bash npm
+npm test
+```
+
+```bash Angular CLI
+ng test
+```
+</CodeGroup>
+
+This runs all test files matching the pattern `*.spec.ts`.
+
+## Test Configuration
+
+### TypeScript Configuration
+
+Test files use `tsconfig.spec.json` which extends the base configuration:
+
+```json
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec",
+    "types": [
+      "vitest/globals"
+    ]
+  },
+  "include": [
+    "src/**/*.d.ts",
+    "src/**/*.spec.ts"
+  ]
+}
+```
+
+Key features:
+- **Vitest globals** - Access to `describe`, `it`, `expect` without imports
+- **Type definitions** - Full TypeScript support for Vitest APIs
+- **Test file inclusion** - All `.spec.ts` files are included
+
+### Angular Testing Configuration
+
+The Angular CLI uses the `@angular/build:unit-test` builder configured in `angular.json`:
+
+```json
+{
+  "test": {
+    "builder": "@angular/build:unit-test"
+  }
+}
+```
+
+## Writing Tests
+
+### Test File Structure
+
+Test files should be named with the `.spec.ts` extension and typically placed alongside the component they test:
+
+```
+src/app/pages/counter/
+├── counter-page.ts
+├── counter-page.html
+└── counter-page.spec.ts
+```
+
+### Basic Test Example
+
+```typescript
+import { TestBed } from '@angular/core/testing';
+import { CounterPage } from './counter-page';
+
+describe('CounterPage', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [CounterPage]
+    }).compileComponents();
+  });
+
+  it('should create', () => {
+    const fixture = TestBed.createComponent(CounterPage);
+    const component = fixture.componentInstance;
+    expect(component).toBeTruthy();
+  });
+
+  it('should increment counter', () => {
+    const fixture = TestBed.createComponent(CounterPage);
+    const component = fixture.componentInstance;
+    
+    const initialCount = component.counter();
+    component.increment();
+    
+    expect(component.counter()).toBe(initialCount + 1);
+  });
+});
+```
+
+## Testing Patterns
+
+### Component Testing
+
+<Steps>
+  <Step title="Configure TestBed">
+    Set up the testing module with required imports:
+    
+    ```typescript
+    await TestBed.configureTestingModule({
+      imports: [MyComponent]
+    }).compileComponents();
+    ```
+  </Step>
+
+  <Step title="Create Component Fixture">
+    ```typescript
+    const fixture = TestBed.createComponent(MyComponent);
+    const component = fixture.componentInstance;
+    ```
+  </Step>
+
+  <Step title="Test Component Behavior">
+    ```typescript
+    component.someMethod();
+    fixture.detectChanges();
+    expect(component.someProperty).toBe(expectedValue);
+    ```
+  </Step>
+
+  <Step title="Query DOM Elements">
+    ```typescript
+    const compiled = fixture.nativeElement;
+    const button = compiled.querySelector('button');
+    expect(button.textContent).toContain('Click me');
+    ```
+  </Step>
+</Steps>
+
+### Testing with Signals
+
+Angular Bases uses signals for reactive state. Test them like this:
+
+```typescript
+it('should update signal value', () => {
+  const fixture = TestBed.createComponent(MyComponent);
+  const component = fixture.componentInstance;
+  
+  // Read signal value
+  expect(component.mySignal()).toBe(initialValue);
+  
+  // Update signal
+  component.mySignal.set(newValue);
+  
+  // Verify change
+  expect(component.mySignal()).toBe(newValue);
+});
+```
+
+### Testing Router Components
+
+For components using routing:
+
+```typescript
+import { provideRouter } from '@angular/router';
+import { routes } from './app.routes';
+
+beforeEach(async () => {
+  await TestBed.configureTestingModule({
+    imports: [MyComponent],
+    providers: [
+      provideRouter(routes)
+    ]
+  }).compileComponents();
+});
+```
+
+### Testing Services
+
+```typescript
+import { TestBed } from '@angular/core/testing';
+import { MyService } from './my.service';
+
+describe('MyService', () => {
+  let service: MyService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(MyService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  it('should return expected data', () => {
+    const result = service.getData();
+    expect(result).toEqual(expectedData);
+  });
+});
+```
+
+## Vitest Features
+
+### Watch Mode
+
+Vitest runs in watch mode by default, re-running tests when files change:
+
+```bash
+npm test
+```
+
+Press `a` to run all tests, or `r` to rerun tests.
+
+### Test Filtering
+
+Run specific tests:
+
+```bash
+npm test -- counter-page.spec.ts
+```
+
+Or use `.only` to focus on specific tests:
+
+```typescript
+it.only('should run only this test', () => {
+  // Test code
+});
+```
+
+### Coverage Reports
+
+Generate code coverage reports:
+
+```bash
+npm test -- --coverage
+```
+
+<Note>
+You may need to install `@vitest/coverage-v8` or `@vitest/coverage-istanbul` for coverage reporting:
+
+```bash
+npm install -D @vitest/coverage-v8
+```
+</Note>
+
+### Debugging Tests
+
+Run tests with the Node debugger:
+
+```bash
+node --inspect-brk ./node_modules/vitest/vitest.mjs
+```
+
+Or add `debugger` statements in your test code and use browser debugging tools.
+
+## Best Practices
+
+### Test Organization
+
+- **One test file per component** - Keep tests alongside their components
+- **Descriptive test names** - Use clear descriptions of what's being tested
+- **Arrange-Act-Assert** - Structure tests with setup, action, and verification
+
+```typescript
+it('should display counter value when incremented', () => {
+  // Arrange
+  const fixture = TestBed.createComponent(CounterPage);
+  const compiled = fixture.nativeElement;
+  
+  // Act
+  fixture.componentInstance.increment();
+  fixture.detectChanges();
+  
+  // Assert
+  const counterDisplay = compiled.querySelector('.counter');
+  expect(counterDisplay.textContent).toContain('1');
+});
+```
+
+### Component Testing
+
+- **Test user interactions** - Simulate clicks, inputs, and other events
+- **Test component outputs** - Verify events are emitted correctly
+- **Test DOM rendering** - Ensure templates render expected content
+- **Isolate dependencies** - Use mocks and stubs for external dependencies
+
+### Coverage Goals
+
+Aim for:
+- **Statements**: 80%+
+- **Branches**: 75%+
+- **Functions**: 80%+
+- **Lines**: 80%+
+
+<Note>
+Focus on testing critical paths and business logic rather than achieving 100% coverage.
+</Note>
+
+## Testing with JSDOM
+
+Angular Bases includes `jsdom` for DOM simulation in tests:
+
+```json
+"devDependencies": {
+  "jsdom": "^27.1.0"
+}
+```
+
+This allows testing DOM interactions without a real browser.
+
+## Common Testing Scenarios
+
+### Testing Forms
+
+```typescript
+it('should validate form input', () => {
+  const fixture = TestBed.createComponent(FormComponent);
+  const compiled = fixture.nativeElement;
+  
+  const input = compiled.querySelector('input');
+  input.value = 'test@example.com';
+  input.dispatchEvent(new Event('input'));
+  
+  fixture.detectChanges();
+  
+  expect(fixture.componentInstance.form.valid).toBe(true);
+});
+```
+
+### Testing HTTP Calls
+
+```typescript
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+
+beforeEach(() => {
+  TestBed.configureTestingModule({
+    providers: [
+      provideHttpClient(),
+      provideHttpClientTesting()
+    ]
+  });
+});
+
+it('should fetch data', () => {
+  const httpTesting = TestBed.inject(HttpTestingController);
+  const service = TestBed.inject(DataService);
+  
+  service.getData().subscribe(data => {
+    expect(data).toEqual(mockData);
+  });
+  
+  const req = httpTesting.expectOne('/api/data');
+  expect(req.request.method).toBe('GET');
+  req.flush(mockData);
+});
+```
+
+### Testing Async Operations
+
+```typescript
+import { fakeAsync, tick } from '@angular/core/testing';
+
+it('should handle async operations', fakeAsync(() => {
+  const fixture = TestBed.createComponent(AsyncComponent);
+  const component = fixture.componentInstance;
+  
+  component.loadData();
+  tick(1000); // Simulate time passing
+  
+  expect(component.data()).toBeDefined();
+}));
+```
+
+## Troubleshooting
+
+### Tests Not Running
+
+Check:
+- Test files have `.spec.ts` extension
+- `tsconfig.spec.json` includes your test files
+- Dependencies are installed (`npm install`)
+
+### Import Errors
+
+Ensure:
+- `vitest/globals` is in `tsconfig.spec.json` types
+- Angular testing utilities are imported from `@angular/core/testing`
+
+### Component Not Found
+
+Verify:
+- Component is imported in TestBed configuration
+- Component is standalone or declared in a testing module
+
+## Next Steps
+
+- Learn about the [project structure](/guides/project-structure)
+- Set up your [development environment](/guides/development)
+- Build for [production deployment](/guides/building)

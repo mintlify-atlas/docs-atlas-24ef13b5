@@ -1,0 +1,171 @@
+---
+title: Counter Page Component
+description: Simple counter implementation with signals and OnPush change detection
+---
+
+The **CounterPage** component demonstrates basic signal usage in Angular, comparing traditional property-based state with Angular signals, and implements the OnPush change detection strategy for optimal performance.
+
+## Component Files
+
+The component is located at `src/app/pages/counter/`:
+- `counter-page.ts` - Component logic
+- `counter-page.html` - Template
+
+## TypeScript Implementation
+
+<CodeGroup>
+```typescript counter-page.ts
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+
+@Component({
+   templateUrl: './counter-page.html',
+   styles:`
+    button {
+        padding: 5px;
+        margin: 5px 10px;
+        width: 75px;
+    }
+   `,
+   changeDetection: ChangeDetectionStrategy.OnPush,
+})
+
+
+export class CounterPage {
+
+    counter = 10;
+    counterSignal = signal(10)
+    incremento(value: number) {
+        this.counter += value;
+        this.counterSignal.update((current) => current + value);
+    }
+
+    resetContador(){
+        this.counter = 0;
+        this.counterSignal.set(0);
+    }
+
+}
+```
+
+```html counter-page.html
+<h1>Counter: {{ counter}} </h1>
+<h1>Counter Signal: {{ counterSignal()}} </h1>
+<hr/>
+<button (click) ="incremento(1)">+1</button>
+<button (click) ="incremento(-1)">-1</button>
+<button (click) ="resetContador()">Reset</button>
+```
+</CodeGroup>
+
+## Signal Usage
+
+This component demonstrates two approaches to state management:
+
+### Traditional Property
+```typescript
+counter = 10;
+```
+A standard class property that won't trigger change detection with OnPush strategy.
+
+### Signal-based State
+```typescript
+counterSignal = signal(10)
+```
+Angular signal that automatically triggers updates when changed.
+
+<Note>
+  With `OnPush` change detection, the traditional `counter` property won't update in the template unless an event is triggered. The `counterSignal` works correctly because signals are reactive.
+</Note>
+
+## Methods
+
+### incremento(value: number)
+
+Increments or decrements both counters by the specified value:
+
+```typescript
+incrementos(value: number) {
+    this.counter += value;
+    this.counterSignal.update((current) => current + value);
+}
+```
+
+**Parameters:**
+- `value` - Amount to increment (positive) or decrement (negative)
+
+**Signal Update Pattern:**
+- Uses `update()` method with a callback function
+- Receives current value and returns new value
+- Ensures immutable state updates
+
+### resetContador()
+
+Resets both counters to zero:
+
+```typescript
+resetContador(){
+    this.counter = 0;
+    this.counterSignal.set(0);
+}
+```
+
+**Signal Update Pattern:**
+- Uses `set()` method to directly assign a new value
+- Simpler than `update()` when you don't need the current value
+
+## Change Detection Strategy
+
+```typescript
+changeDetection: ChangeDetectionStrategy.OnPush
+```
+
+The component uses `OnPush` change detection, which only checks for changes when:
+- An input property reference changes
+- An event is triggered in the component
+- A signal used in the template changes
+- Change detection is manually triggered
+
+<Tip>
+  `OnPush` strategy significantly improves performance by reducing the number of change detection cycles. Signals work perfectly with OnPush because they notify Angular when their values change.
+</Tip>
+
+## Inline Styles
+
+The component includes inline styles for the buttons:
+
+```typescript
+styles:`
+ button {
+     padding: 5px;
+     margin: 5px 10px;
+     width: 75px;
+ }
+`
+```
+
+These styles are scoped to this component only and won't affect other buttons in the application.
+
+## Template Features
+
+### Signal Invocation
+Signals are invoked as functions in templates:
+
+```html
+{{ counterSignal() }}
+```
+
+### Event Binding
+Click events are bound using Angular's event binding syntax:
+
+```html
+(click)="incremento(1)"
+(click)="incremento(-1)"
+(click)="resetContador()"
+```
+
+## Key Takeaways
+
+1. **Signals are reactive** - They automatically trigger template updates
+2. **OnPush optimization** - Use signals with OnPush for better performance
+3. **Two update methods** - Use `set()` for direct values, `update()` for computed values
+4. **Function invocation** - Signals must be called as functions in templates: `counterSignal()`

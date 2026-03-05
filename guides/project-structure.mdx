@@ -1,0 +1,235 @@
+---
+title: Project Structure
+description: Understanding the Angular Bases project organization and key configuration files
+---
+
+## Overview
+
+Angular Bases follows the standard Angular project structure with a clear separation between application code, configuration files, and build outputs.
+
+## Directory Structure
+
+```
+bases/
+├── src/
+│   ├── app/
+│   │   ├── components/
+│   │   │   └── shared/
+│   │   │       └── navbar/
+│   │   ├── pages/
+│   │   │   ├── counter/
+│   │   │   ├── dragonball/
+│   │   │   ├── dragonball-super/
+│   │   │   └── hero/
+│   │   ├── app.ts
+│   │   ├── app.html
+│   │   ├── app.config.ts
+│   │   └── app.routes.ts
+│   ├── main.ts
+│   └── styles.css
+├── public/
+│   └── favicon.ico
+├── angular.json
+├── package.json
+├── tsconfig.json
+├── tsconfig.app.json
+└── tsconfig.spec.json
+```
+
+## Core Application Files
+
+### main.ts
+
+The application entry point that bootstraps the Angular application:
+
+```typescript
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { App } from './app/app';
+
+bootstrapApplication(App, appConfig)
+  .catch((err) => console.error(err));
+```
+
+Located at: `src/main.ts`
+
+### app.ts
+
+The root component of the application:
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { Navbar } from "./components/shared/navbar/navbar";
+
+@Component({
+  selector: 'app-root',
+  imports: [RouterOutlet, Navbar],
+  templateUrl: './app.html',
+})
+export class App {
+  protected readonly title = signal('Miguel');
+}
+```
+
+Located at: `src/app/app.ts`
+
+### app.config.ts
+
+Application-wide configuration and providers:
+
+```typescript
+import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideRouter(routes)
+  ]
+};
+```
+
+Located at: `src/app/app.config.ts`
+
+### app.routes.ts
+
+Defines all application routes:
+
+```typescript
+import { Routes } from '@angular/router';
+import { CounterPage } from './pages/counter/counter-page';
+import { HeroPageComponent } from './pages/hero/hero-page.component';
+import { DragonballPage } from './pages/dragonball/dragonball-page';
+import { DragonballSuperPage } from './pages/dragonball-super/dragonball-super-page';
+
+export const routes: Routes = [
+  { path: '', component: CounterPage },
+  { path: 'hero', component: HeroPageComponent },
+  { path: 'dragonball', component: DragonballPage },
+  { path: 'dragonball-super', component: DragonballSuperPage },
+  { path: '**', redirectTo: '' }
+];
+```
+
+Located at: `src/app/app.routes.ts`
+
+## Application Organization
+
+### Pages Directory
+
+The `src/app/pages/` directory contains page-level components that are routed to:
+
+- **counter/** - Counter demonstration page
+- **hero/** - Hero page component
+- **dragonball/** - Dragonball characters page
+- **dragonball-super/** - Dragonball Super characters page
+
+Each page typically has its own directory with the component file and template.
+
+### Components Directory
+
+The `src/app/components/shared/` directory contains reusable components:
+
+- **navbar/** - Navigation bar component used across the application
+
+Shared components can be imported and used by multiple pages.
+
+## TypeScript Configuration
+
+### tsconfig.json
+
+The root TypeScript configuration with strict mode enabled:
+
+```json
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  }
+}
+```
+
+### tsconfig.app.json
+
+Extends the base configuration for application builds:
+
+```json
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/app",
+    "types": []
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts"]
+}
+```
+
+### tsconfig.spec.json
+
+Configuration for test files with Vitest types:
+
+```json
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec",
+    "types": ["vitest/globals"]
+  },
+  "include": ["src/**/*.d.ts", "src/**/*.spec.ts"]
+}
+```
+
+## Build Configuration
+
+The `angular.json` file configures the Angular CLI and build process:
+
+### Key Settings
+
+- **sourceRoot**: `src` - Location of application source code
+- **prefix**: `app` - Default selector prefix for generated components
+- **browser**: `src/main.ts` - Entry point for the application
+- **assets**: Files from `public/` are copied to build output
+- **styles**: `src/styles.css` is the global stylesheet
+
+### Build Configurations
+
+**Production**:
+- Output hashing enabled for cache busting
+- Bundle size budgets enforced (500kB warning, 1MB error for initial bundle)
+- Component style budgets (4kB warning, 8kB error)
+
+**Development**:
+- Optimization disabled for faster builds
+- Source maps enabled for debugging
+- License extraction disabled
+
+<Note>
+The project uses Angular's new application builder (`@angular/build:application`) which provides improved performance and smaller bundle sizes.
+</Note>
+
+## Public Assets
+
+The `public/` directory contains static assets that are copied directly to the build output:
+
+- `favicon.ico` - Browser tab icon
+
+Any files placed in `public/` will be available at the root of your deployed application.
